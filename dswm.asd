@@ -25,16 +25,18 @@
                #+sbcl :sb-posix
                #:zpb-ttf
                #:cl-vectors
-               #:cl-paths-ttf
-               #:cl-aa
-               #:cl-store
-               #:trivial-features)
+	       #:cl-paths-ttf
+	       #:clx-truetype)
   :components ((:file "package")
                (:file "definitions")
 	       (:file "library")
                (:file "workarounds")
                (:file "wrappers")
                (:file "keysyms")
+	       ;; (:file "clx-truetype")
+	       ;; (:file "clx-utils")
+	       ;; (:file "font-cache")
+	       (:file "font-rendering")
 	       ;;(:file "keysyms-uni")
                (:file "kmap")
                (:file "input")
@@ -62,9 +64,5 @@
                (:file "color")
                (:file "module")
                (:file "help")
-               (:file "clx-truetype")
-               (:file "clx-utils")
-               (:file "font-cache")
                (:file "dswm")
 ))
-

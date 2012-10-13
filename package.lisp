@@ -24,4 +24,5 @@
 
 (defpackage :dswm-user
   (:use :cl :dswm))
+;;;; package.lisp
 

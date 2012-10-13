@@ -68,7 +68,9 @@ then call (update-color-map).")
   (xlib:alloc-color (xlib:screen-default-colormap (screen-number screen)) color))
 
 (defun lookup-color (screen color)
-  (xlib:lookup-color (xlib:screen-default-colormap (screen-number screen)) color))
+  (cond
+    ((typep color 'xlib:color) color)
+    (t (xlib:lookup-color (xlib:screen-default-colormap (screen-number screen)) color))))
 
 (defun update-color-map (screen)
   "Read *colors* and cache their pixel colors for use when rendering colored text."
@@ -76,13 +78,13 @@ then call (update-color-map).")
     (flet
 	((map-colors (amt)
 		     (loop for c in *colors*
-			   as color = (xlib:lookup-color scm c)
+			   as color = (lookup-color screen c)
 			   do (adjust-color color amt)
 			   collect (xlib:alloc-color scm color)))
 	 (map-hex-colors (amt)
 			 (loop for c in *colors*
 			       as color = (handler-case
-					   (xlib:lookup-color scm c)
+					   (lookup-color screen c)
 					   (xlib:name-error (ne)
 							    (make-color-hex c)))
 			       do (adjust-color color amt)
@@ -184,8 +186,7 @@ then call (update-color-map).")
     r))
 
 (defun render-strings (screen cc padx pady strings highlights &optional (draw t))
-  (let* ((height (+ (xlib:font-descent (screen-font screen))
-                    (xlib:font-ascent (screen-font screen))))
+  (let* ((height (font-height (screen-font screen)))
          (width 0)
          (gc (ccontext-gc cc))
          (win (ccontext-win cc))
@@ -219,14 +220,14 @@ then call (update-color-map).")
 				     ((and en (char= #\^ (char s (1+ en)))) (1+ en))
 				     (t en))))
 		       (when draw
-                         (xlib:draw-image-glyphs px gc
+                         (draw-image-glyphs px gc (screen-font screen)
                                                  (+ padx x)
                                                  (+ pady (* i height)
-                                                    (xlib:font-ascent (screen-font screen)))
+                                                    (font-ascent (screen-font screen)))
                                                  (subseq s st en)
                                                  :translate #'translate-id
                                                  :size 16))
-		       (setf x (+ x (xlib:text-width (screen-font screen) (subseq s st en) :translate #'translate-id))
+		       (setf x (+ x (text-line-width (screen-font screen) (subseq s st en) :translate #'translate-id))
 			     width (max width x)))
 		     (when (and en (< (1+ en) len))
 		       ;; right-align rest of string?

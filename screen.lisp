@@ -319,10 +319,6 @@ identity with a range check."
             always (xlib:lookup-color (xlib:screen-default-colormap (screen-number i)) color))
     (xlib:name-error () nil)))
 
-(defun font-exists-p (font-name)
-  ;; if we can list the font then it exists
-  (plusp (length (xlib:list-font-names *display* font-name :max-fonts 1))))
-
 (defmacro set-any-color (val color)
   `(progn (dolist (s *screen-list*)
             (setf (,val s) (alloc-color s ,color)))
@@ -389,15 +385,18 @@ bar."
   "Set the font for the message bar and input bar."
   (when (font-exists-p font)
     (dolist (i *screen-list*)
-      (let ((fobj (xlib:open-font *display* (first (xlib:list-font-names *display* font :max-fonts 1)))))
-        (xlib:close-font (screen-font i))
-        (setf (screen-font i) fobj
-              (xlib:gcontext-font (screen-message-gc i)) fobj)
+      (let ((fobj (open-font *display* font)))
+        (close-font (screen-font i))
+        (setf (screen-font i) fobj)
+        (when (typep fobj 'xlib:font)
+          (setf
+           (xlib:gcontext-font (screen-message-gc i)) fobj))
         ;; update the modelines too
         (dolist (h (screen-heads i))
           (when (and (head-mode-line h)
                      (eq (mode-line-mode (head-mode-line h)) :ds))
-            (setf (xlib:gcontext-font (mode-line-gc (head-mode-line h))) fobj)
+            (when (typep fobj 'xlib:font)
+              (setf (xlib:gcontext-font (mode-line-gc (head-mode-line h))) fobj))
             (resize-mode-line (head-mode-line h))
             (sync-mode-line (head-mode-line h))))))
     t))
@@ -504,7 +503,7 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
                                              :colormap (xlib:screen-default-colormap
                                                         screen-number)
                                              :event-mask '(:exposure)))
-           (font (xlib:open-font *display*
+           (font (open-font *display*
                                  (if (font-exists-p +default-font-name+)
                                      +default-font-name+
                                      "*")))
@@ -539,11 +538,11 @@ FOCUS-WINDOW is an extra window used for _NET_SUPPORTING_WM_CHECK."
             (screen-message-cc screen) (make-ccontext :win message-window
                                                       :gc (xlib:create-gcontext
                                                            :drawable message-window
-                                                           :font font
+                                                           :font (when (typep font 'xlib:font) font)
                                                            :foreground fg
                                                            :background bg))
             (screen-frame-outline-gc screen) (xlib:create-gcontext :drawable (screen-root screen)
-                                                                   :font font
+                                                                   :font (when (typep font 'xlib:font) font)
                                                                    :foreground fg
                                                                    :background fg
                                                                    :line-style :double-dash
