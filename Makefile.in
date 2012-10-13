@@ -25,7 +25,8 @@ helper.lisp command.lisp menu.lisp screen.lisp head.lisp group.lisp	\
 window.lisp floating-group.lisp tile-window.lisp window-placement.lisp	\
 message-window.lisp selection.lisp user.lisp iresize.lisp		\
 bindings.lisp events.lisp help.lisp fdump.lisp mode-line.lisp		\
-time.lisp color.lisp module.lisp dswm.lisp
+time.lisp color.lisp module.lisp clx-truetype.lisp clx-utils.lisp       \
+font-cache.lisp dswm.lisp
 
 all: @MAKE_ALL_DEPS@
 
@@ -45,7 +46,7 @@ release:
 	# git tag -a -m "version @PACKAGE_VERSION@" @PACKAGE_VERSION@
 	git archive --format=tar --prefix=dswm-@PACKAGE_VERSION@/ HEAD > dswm-@PACKAGE_VERSION@.tar
 	tar -xf dswm-@PACKAGE_VERSION@.tar
-	rm -rf dswm-@PACKAGE_VERSION@/.git* dswm-@PACKAGE_VERSION@/autom4te.cache dswm-@PACKAGE_VERSION@/configure dswm-@PACKAGE_VERSION@/Makefile dswm-@PACKAGE_VERSION@/module.lisp dswm-@PACKAGE_VERSION@/make-image.lisp dswm-@PACKAGE_VERSION@/dswm.desktop
+	rm -rf dswm-@PACKAGE_VERSION@/.git* dswm-@PACKAGE_VERSION@/autom4te.cache dswm-@PACKAGE_VERSION@/configure dswm-@PACKAGE_VERSION@/Makefile dswm-@PACKAGE_VERSION@/module.lisp dswm-@PACKAGE_VERSION@/make-image.lisp dswm-@PACKAGE_VERSION@/etc/dswm.desktop
 	git log > dswm-@PACKAGE_VERSION@/ChangeLog
 	cp configure dswm-@PACKAGE_VERSION@/
 	tar -zcf dswm-@PACKAGE_VERSION@.tar.gz dswm-@PACKAGE_VERSION@
@@ -69,7 +70,7 @@ testbuild:
 clean:
 	rm -f *.fasl *.fas *.lib *.*fsl
 	rm -f *.log *.fns *.fn *.aux *.cp *.ky *.log *.toc *.pg *.tp *.vr *.vrs
-	rm -rf dswm dswm.texi dswm.info autom4te.cache  *.tar.* version.lisp module.lisp make-image.lisp help.lisp dswm.desktop
+	rm -rf dswm dswm.texi dswm.info autom4te.cache  *.tar.* version.lisp module.lisp make-image.lisp help.lisp etc/dswm.desktop
 install: dswm.info dswm
 	test -z "$(destdir)$(bindir)" || mkdir -p "$(destdir)$(bindir)"
 	install -m 755 dswm "$(destdir)$(bindir)"
@@ -84,9 +85,9 @@ install: dswm.info dswm
 	install -m 644 COPYING "$(destdir)$(datarootdir)/dswm/"
 	install -m 644 AUTHORS "$(destdir)$(datarootdir)/dswm/"
 	## Install dswm.desktop for desktop managers
-	test -d "$(destdir)$(datarootdir)/xsessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/xsessions" || install -m 644 dswm.desktop "/usr/share/xsessions/"
+	test -d "$(destdir)$(datarootdir)/xsessions" && install -m 644 etc/dswm.desktop "$(destdir)$(datarootdir)/xsessions" || install -m 644 etc/dswm.desktop "/usr/share/xsessions/"
 	## Install dswm.desktop for KDM (f*cking KDE)
-	test -d "$(destdir)$(datarootdir)/apps/kdm/sessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/apps/kdm/sessions" || test -d "$(destdir)$(datarootdir)/apps/kdm/sessions" && install -m 644 dswm.desktop "$(destdir)$(datarootdir)/apps/kdm/sessions" || true
+	test -d "$(destdir)$(datarootdir)/apps/kdm/sessions" && install -m 644 etc/dswm.desktop "$(destdir)$(datarootdir)/apps/kdm/sessions" || test -d "$(destdir)$(datarootdir)/apps/kdm/sessions" && install -m 644 etc/dswm.desktop "$(destdir)$(datarootdir)/apps/kdm/sessions" || true
 
 uninstall:
 	rm "$(destdir)$(bindir)/dswm"

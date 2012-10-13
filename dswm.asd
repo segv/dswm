@@ -15,12 +15,20 @@
 (defsystem :dswm
   :name "DSWM"
   :author "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
-  :version "0.0.4-git"
+  :version "20121013"
   :maintainer "Alexander Vynnyk <cosmonaut.ok@gmail.com>"
   :license "GNU General Public License"
   :description "A tiling, keyboard driven window manager"
   :serial t
-  :depends-on (:cl-ppcre #-(or cmu clisp) :clx #+sbcl :sb-posix)
+  :depends-on (:cl-ppcre
+               #-(or cmu clisp) :clx
+               #+sbcl :sb-posix
+               #:zpb-ttf
+               #:cl-vectors
+               #:cl-paths-ttf
+               #:cl-aa
+               #:cl-store
+               #:trivial-features)
   :components ((:file "package")
                (:file "definitions")
 	       (:file "library")
@@ -54,6 +62,9 @@
                (:file "color")
                (:file "module")
                (:file "help")
+               (:file "clx-truetype")
+               (:file "clx-utils")
+               (:file "font-cache")
                (:file "dswm")
 ))
 
