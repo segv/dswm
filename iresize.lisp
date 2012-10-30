@@ -1,4 +1,5 @@
 ;; Copyright (C) 2003-2008 Shawn Betts
+;; Copyright (C) 2010-2012 Alexander aka CosmonauT Vynnyk
 ;;
 ;;  This file is part of dswm.
 ;;
@@ -36,15 +37,16 @@
   "Number of pixels to increment by when interactively resizing frames.")
 
 (defun set-resize-increment (val)
-  (setf *resize-increment* val))
+  (setf *resize-increment* val)
+  (update-resize-map))
 
 (defun update-resize-map (fx fy fh fw dh dw)
   (let ((m (or *resize-map* (setf *resize-map* (make-sparse-keymap)))))
     (let ((i *resize-increment*))
-         (labels ((dks (m keys c)
+      (labels ((dks (m keys c)
                  (let ((cmd (format nil c i)))
                    (dolist (k keys)
-                    (define-key m (kbd k) cmd)))))
+                     (define-key m (kbd k) cmd)))))
         (if (or (= fx 0)
                 (< (+ fx fw) dw))
             (progn
@@ -66,8 +68,6 @@
     (define-key m (kbd "C-g") "abort-iresize")
     (define-key m (kbd "ESC") "abort-iresize")))
 
-
-
 (defcommand (iresize tile-group) () ()
   "Start the interactive resize mode. A new keymap specific to
 resizing the current frame is loaded. Hit @key{C-g}, @key{RET}, or
@@ -83,16 +83,15 @@ resizing the current frame is loaded. Hit @key{C-g}, @key{RET}, or
          (fh (frame-height frame))
          (fw (frame-width frame)))
     (if (atom (tile-group-frame-head group (frame-head group frame)))
-
         (message "There's only 1 frame!")
         (progn
           (when *resize-hides-windows*
             (dolist (f (head-frames group (current-head)))
-                      (clear-frame f group)))
+              (clear-frame f group)))
           (message "Resize Frame")
-          (update-resize-map fx fy fh fw dh dw)
+          (update-resize-map fx fy fh fw dh fw)
           (push-top-map *resize-map*)
-           (draw-frame-outlines group (current-head)))
+          (draw-frame-outlines group (current-head)))
         ;;   (setf *resize-backup* (copy-frame-tree (current-group)))
         )))
 
